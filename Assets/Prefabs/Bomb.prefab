@@ -152,3 +152,5 @@ MonoBehaviour:
   minSpeed: 12
   maxSpeed: 16
   torquePower: 10
+  targetType: Bomb
+  explosionParticle: {fileID: 2088871590894813759, guid: 745208c9d6e104225bd99e1ab894e3bb, type: 3}

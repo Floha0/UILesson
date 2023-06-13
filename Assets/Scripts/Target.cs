@@ -5,15 +5,26 @@ using UnityEngine;
 public class Target : MonoBehaviour
 {
     private Rigidbody targetRb;
-    public float minSpeed = 12f;
-    public float maxSpeed = 16f;
+
+    [SerializeField]
+    private float minSpeed = 12f;
+
+    [SerializeField]
+    private float maxSpeed = 16f;
     private float speed;
     private float zRange = 8f;
     private Vector3 spawnPos;
-    public float torquePower = 10f;
+
+    [SerializeField]
+    private float torquePower = 10f;
     private Vector3 torqueVector;
-    private GameObject gameManager;
-    private string targetTag;
+
+    [SerializeField]
+    private string targetType;
+    private GameManager gameManagercs;
+
+    [SerializeField]
+    private ParticleSystem explosionParticle;
 
     void Start()
     {
@@ -25,7 +36,7 @@ public class Target : MonoBehaviour
         spawnPos = new Vector3(1, -6, Random.Range(-zRange, zRange));
         speed = Random.Range(minSpeed, maxSpeed);
         targetRb = GetComponent<Rigidbody>();
-        gameManager = GameObject.Find("GameManager");
+        gameManagercs = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         targetRb.AddForce(Vector3.up * speed, ForceMode.Impulse);
         targetRb.AddTorque(torqueVector, ForceMode.Impulse);
@@ -36,43 +47,40 @@ public class Target : MonoBehaviour
     {
         if (transform.position.y < -10)
         {
-            switch (tag)
+            switch (targetType)
             {
                 case "Heal":
-                    gameManager.GetComponent<GameManager>().score--;
-                    break;
-                case "Bomb":
-                    gameManager.GetComponent<GameManager>().score++;
+                    gameManagercs.UpdateScore(-1);
                     break;
             }
+
             Destroy(gameObject);
-            Debug.Log(gameManager.GetComponent<GameManager>().score);
         }
     }
 
     private void OnMouseDown()
     {
-        switch (tag)
+        switch (targetType)
         {
             case "Heal":
-                gameManager.GetComponent<GameManager>().score++;
+                gameManagercs.UpdateScore(1);
                 break;
             case "Bomb":
-                gameManager.GetComponent<GameManager>().score--;
+                gameManagercs.UpdateScore(-1);
                 break;
             case "Random":
                 if (Random.Range(0, 2) == 0)
                 {
-                    gameManager.GetComponent<GameManager>().score--;
+                    gameManagercs.UpdateScore(-1);
                 }
                 else
                 {
-                    gameManager.GetComponent<GameManager>().score++;
+                    gameManagercs.UpdateScore(1);
                 }
                 break;
         }
 
-        Destroy(gameObject);
-        Debug.Log(gameManager.GetComponent<GameManager>().score);
+        Destroy(gameObject);    
+        Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
     }
 }
