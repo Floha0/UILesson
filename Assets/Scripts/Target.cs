@@ -6,28 +6,38 @@ public class Target : MonoBehaviour
 {
     private Rigidbody targetRb;
 
+    // Adjust velocity
+    [Header("Velocity")]
     [SerializeField]
     private float minSpeed = 12f;
 
     [SerializeField]
     private float maxSpeed = 16f;
     private float speed;
-    private float zRange = 8f;
-    private Vector3 spawnPos;
 
     [SerializeField]
     private float torquePower = 10f;
     private Vector3 torqueVector;
 
+    // Bounds
+    private float zRange = 8f;
+    private Vector3 spawnPos;
+
+    // Manage Score
+    [Header("Type")]
     [SerializeField]
     private string targetType;
     private GameManager gameManagercs;
 
+    // VFX
+    [Tooltip("The particle that will seen on clicked.")]
     [SerializeField]
     private ParticleSystem explosionParticle;
 
     void Start()
     {
+        // set Variables
+
         torqueVector = new Vector3(
             Random.Range(-torquePower, torquePower),
             Random.Range(-torquePower, torquePower),
@@ -38,6 +48,7 @@ public class Target : MonoBehaviour
         targetRb = GetComponent<Rigidbody>();
         gameManagercs = GameObject.Find("GameManager").GetComponent<GameManager>();
 
+        // Spawn position and velocity
         targetRb.AddForce(Vector3.up * speed, ForceMode.Impulse);
         targetRb.AddTorque(torqueVector, ForceMode.Impulse);
         transform.position = spawnPos;
@@ -45,6 +56,7 @@ public class Target : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Bottom Bound Destroy
         if (transform.position.y < -10)
         {
             switch (targetType)
@@ -60,6 +72,7 @@ public class Target : MonoBehaviour
 
     private void OnMouseDown()
     {
+        // On clicked events
         switch (targetType)
         {
             case "Heal":
@@ -71,7 +84,10 @@ public class Target : MonoBehaviour
             case "Random":
                 if (Random.Range(0, 2) == 0)
                 {
-                    gameManagercs.UpdateScore(-1);
+                    if (gameManagercs.score != 0)
+                    {
+                        gameManagercs.UpdateScore(-1);
+                    }
                 }
                 else
                 {
@@ -80,7 +96,7 @@ public class Target : MonoBehaviour
                 break;
         }
 
-        Destroy(gameObject);    
+        Destroy(gameObject);
         Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
     }
 }
